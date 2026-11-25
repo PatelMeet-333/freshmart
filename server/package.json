@@ -1,0 +1,39 @@
+{
+  "name": "freshmart-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "FreshMart REST API (Express + MongoDB + Cashfree)",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/seed/seed.js",
+    "seed:reset": "node src/seed/seed.js --reset",
+    "test": "node --test --test-concurrency=1 \"test/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "config": {
+    "mongodbMemoryServer": {
+      "downloadDir": "./.cache/mongodb-binaries",
+      "md5Check": "false"
+    }
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.13.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.4.0",
+    "supertest": "^7.3.2"
+  }
+}
