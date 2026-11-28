@@ -4,10 +4,6 @@ import { Alert, PageSpinner } from '../components/Misc.jsx';
 import { api } from '../lib/api.js';
 import { rupees } from '../lib/format.js';
 
-/**
- * Local development only (CASHFREE_MODE=mock). Stands in for the Cashfree
- * checkout page so the whole flow can be tested without Cashfree keys.
- */
 export default function MockPay() {
   const { id } = useParams();
   const navigate = useNavigate();
