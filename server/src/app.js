@@ -39,7 +39,6 @@ export function createApp() {
     })
   );
 
-  // Raw body for signature checks, so this must come before express.json().
   app.post('/api/payments/cashfree/webhook', express.raw({ type: '*/*', limit: '1mb' }), cashfreeWebhook);
 
   app.use(express.json({ limit: '20kb' }));
@@ -53,9 +52,6 @@ export function createApp() {
   app.use('/api/products', productRoutes);
   app.use('/api/orders', orderRoutes);
   app.use('/api/payments', paymentRoutes);
-
-  // Optional: serve the built website from this server (SERVE_CLIENT=1),
-  // e.g. on low-memory machines or a single-server deployment.
   if (process.env.SERVE_CLIENT === '1') {
     const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../client/dist');
     if (fs.existsSync(path.join(dist, 'index.html'))) {
