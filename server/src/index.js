@@ -9,7 +9,6 @@ import { User } from './models/User.js';
 
 async function main() {
   const { usingMemory } = await connectDB(env.mongoUri);
-  // Build indexes (unique email, idempotency key) before taking traffic.
   await Promise.all([User.init(), Product.init(), Order.init()]);
   const seeded = await seedIfEmpty();
 
