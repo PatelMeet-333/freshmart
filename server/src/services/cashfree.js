@@ -60,7 +60,6 @@ export const gateway = {
       return_url: `${clientUrl}/order/${order._id}?return=1`,
       payment_methods: METHOD_FILTER[order.paymentMethod],
     };
-    // Cashfree only calls https webhooks; locally we rely on status checks instead.
     if (isHttps(env.apiUrl)) orderMeta.notify_url = `${env.apiUrl}/api/payments/cashfree/webhook`;
 
     let data;
