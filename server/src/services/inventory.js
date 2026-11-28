@@ -1,7 +1,6 @@
 import { Product } from '../models/Product.js';
 import { HttpError } from '../utils/httpError.js';
 
-/** Merges duplicate lines and sorts by id so concurrent orders lock in the same order. */
 export function normaliseItems(items) {
   const byId = new Map();
   for (const { productId, qty } of items) {
@@ -12,12 +11,6 @@ export function normaliseItems(items) {
     .sort((a, b) => a.productId.localeCompare(b.productId));
 }
 
-/**
- * Takes stock for every item inside the caller's transaction. Each update only
- * matches when enough stock is left, so stock can never go below zero. If any
- * item is short we throw, and the transaction undoes the items already taken.
- * Prices always come from the database, never from the browser.
- */
 export async function reserveItems(items, session) {
   const lines = [];
   for (const { productId, qty } of items) {
@@ -50,7 +43,6 @@ export async function reserveItems(items, session) {
   return lines;
 }
 
-/** Puts reserved stock back, inside the caller's transaction. */
 export async function restockItems(lines, session) {
   for (const line of lines) {
     await Product.updateOne({ _id: line.product }, { $inc: { stock: line.qty } }, { session });
