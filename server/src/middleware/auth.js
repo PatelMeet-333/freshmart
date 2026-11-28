@@ -4,9 +4,6 @@ import { HttpError } from '../utils/httpError.js';
 
 export const AUTH_COOKIE = 'fm_token';
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-
-// The website (Vercel) and API (Render) are on different domains in
-// production, so the cookie must be SameSite=None and Secure there.
 export function cookieOptions() {
   return {
     httpOnly: true,
