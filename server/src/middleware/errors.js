@@ -1,8 +1,6 @@
 import { ZodError } from 'zod';
 import { HttpError } from '../utils/httpError.js';
 
-// Writes must be JSON. A cross-site form post can't send that without a CORS
-// preflight, which our CORS allowlist refuses, so this blocks CSRF.
 export function requireJsonForWrites(req, _res, next) {
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && !req.is('application/json')) {
     return next(new HttpError(415, 'Requests must be sent as JSON.', 'UNSUPPORTED_MEDIA_TYPE'));
@@ -13,8 +11,6 @@ export function requireJsonForWrites(req, _res, next) {
 export function notFound(_req, res) {
   res.status(404).json({ message: 'Not found', code: 'NOT_FOUND' });
 }
-
-// eslint-disable-next-line no-unused-vars
 export function errorHandler(err, _req, res, _next) {
   if (err instanceof HttpError) {
     return res.status(err.status).json({ message: err.message, code: err.code, details: err.details });
