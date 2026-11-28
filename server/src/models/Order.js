@@ -88,7 +88,7 @@ export function toClientOrder(order) {
     payment: {
       gateway: o.payment?.gateway ?? null,
       lastAttempt: o.payment?.lastAttempt ?? null,
-      // Only exposed while the customer can still pay.
+
       paymentSessionId: o.status === 'awaiting_payment' ? o.payment?.paymentSessionId ?? null : null,
     },
     createdAt: o.createdAt,
