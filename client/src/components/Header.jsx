@@ -22,13 +22,9 @@ export function Header() {
   const location = useLocation();
   const [params] = useSearchParams();
   const [q, setQ] = useState(params.get('q') || '');
-
-  // Keep the box in sync when the URL changes (e.g. clicking the logo).
   useEffect(() => {
     setQ(params.get('q') || '');
   }, [params]);
-
-  // Search as you type, after a short pause.
   useEffect(() => {
     const current = params.get('q') || '';
     if (q.trim() === current) return undefined;
@@ -39,8 +35,7 @@ export function Header() {
       navigate({ pathname: '/', search: next.toString(), hash: q.trim() ? 'shop' : '' }, { replace: location.pathname === '/' });
     }, 300);
     return () => clearTimeout(t);
-  }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, [q]); 
   return (
     <header className="site-header">
       <div className="container header-row">
