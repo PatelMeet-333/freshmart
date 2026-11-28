@@ -1,5 +1,3 @@
-// 80 products in 9 categories (PID objective O1). Prices in whole rupees.
-// `img` names a photo in client/public/products; null shows a styled tile.
 const DATA = {
   Fruits: [
     ['Shimla apple', 180, '1 kg', 'apple'],
