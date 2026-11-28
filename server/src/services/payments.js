@@ -4,23 +4,9 @@ import { runInTransaction } from '../utils/transaction.js';
 import { gateway } from './cashfree.js';
 import { reserveItems, restockItems } from './inventory.js';
 
-/*
- * Payment state machine. Every state change runs in its own transaction and
- * only applies if the order is still in the state we expect, so calling any
- * of these twice (a repeated webhook, a double click) changes nothing.
- *
- *   awaiting_payment ──paid──▶ paid
- *          │  └──switch──▶ confirmed (COD) ──paid late──▶ paid
- *          └──fail/expire──▶ failed (stock returned)
- *                               └──paid late──▶ paid (stock re-reserved)
- *                                         or ──▶ refund_pending ─▶ refunded
- */
-
 function sameAmount(a, b) {
   return Math.round(Number(a) * 100) === Math.round(Number(b) * 100);
 }
-
-/** Releases the hold: marks the order failed and puts the stock back. */
 export async function releaseHold(orderId, reason) {
   return runInTransaction(async (session) => {
     const order = await Order.findOneAndUpdate(
@@ -34,7 +20,6 @@ export async function releaseHold(orderId, reason) {
   });
 }
 
-/** Records a verified successful payment. Returns what happened. */
 export async function confirmPayment(orderId, { cfPaymentId, amount }) {
   const current = await Order.findById(orderId);
   if (!current) return 'unknown_order';
@@ -51,7 +36,6 @@ export async function confirmPayment(orderId, { cfPaymentId, amount }) {
     'payment.lastAttempt': null,
   };
 
-  // Normal case: stock is still held (or the customer switched to COD).
   const updated = await runInTransaction((session) =>
     Order.findOneAndUpdate(
       { _id: orderId, status: { $in: ['awaiting_payment', 'confirmed'] } },
@@ -64,7 +48,7 @@ export async function confirmPayment(orderId, { cfPaymentId, amount }) {
   const order = await Order.findById(orderId);
   if (order.status !== 'failed') return 'no_change'; // already paid, refunded, …
 
-  // Paid after the hold was released: take the stock again if it's still there.
+
   try {
     const reReserved = await runInTransaction(async (session) => {
       const claimed = await Order.findOneAndUpdate(
@@ -84,7 +68,6 @@ export async function confirmPayment(orderId, { cfPaymentId, amount }) {
     if (err.code !== 'OUT_OF_STOCK' && err.code !== 'PRODUCT_NOT_FOUND') throw err;
   }
 
-  // Stock is gone: refund the customer.
   const refundId = `rf_${order.orderNumber}`;
   const marked = await runInTransaction((session) =>
     Order.findOneAndUpdate(
@@ -99,15 +82,10 @@ export async function confirmPayment(orderId, { cfPaymentId, amount }) {
   return 'refunded';
 }
 
-/** Notes a failed or abandoned attempt. The hold stays so the customer can retry. */
 export async function recordFailedAttempt(orderId, kind) {
   await Order.updateOne({ _id: orderId, status: 'awaiting_payment' }, { $set: { 'payment.lastAttempt': kind } });
 }
 
-/**
- * Asks Cashfree for the truth and brings our order in line with it. Used by
- * the return page, by the hold sweeper, and whenever a webhook can't reach us.
- */
 export async function reconcile(orderId) {
   const order = await Order.findById(orderId);
   if (!order || !order.payment?.gateway) return order;
@@ -130,7 +108,6 @@ export async function reconcile(orderId) {
   return Order.findById(orderId);
 }
 
-/** The customer gives up on paying online. */
 export async function cancelPayment(orderId) {
   const order = await reconcile(orderId);
   if (order?.status !== 'awaiting_payment') return order;
@@ -139,7 +116,6 @@ export async function cancelPayment(orderId) {
   return Order.findById(orderId);
 }
 
-/** After terminating, a payment may still have slipped in. Returns true if it did. */
 async function confirmIfPaid(order) {
   if ((await gateway.getOrderStatus(order.orderNumber)) !== 'PAID') return false;
   const payment = await gateway.getSuccessfulPayment(order.orderNumber);
@@ -147,7 +123,6 @@ async function confirmIfPaid(order) {
   return true;
 }
 
-/** The customer chooses cash on delivery instead. Stock is already reserved. */
 export async function switchToCod(orderId) {
   const order = await reconcile(orderId);
   if (order.status === 'paid') return order; // paid in the meantime, nothing to switch
