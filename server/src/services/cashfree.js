@@ -92,7 +92,7 @@ export const gateway = {
     return { cfOrderId: String(data.cf_order_id), paymentSessionId: data.payment_session_id };
   },
 
-  /** 'ACTIVE' | 'PAID' | 'EXPIRED' | 'TERMINATED' | 'TERMINATION_REQUESTED' */
+  
   async getOrderStatus(orderNumber) {
     if (mode === 'mock') return mockOrders.get(orderNumber)?.status ?? 'EXPIRED';
     const data = await call('GET', `/orders/${encodeURIComponent(orderNumber)}`);
@@ -109,7 +109,6 @@ export const gateway = {
     return ok ? { cfPaymentId: String(ok.cf_payment_id), amount: Number(ok.payment_amount) } : null;
   },
 
-  /** Stops further payment attempts. Best effort: a PAID order can't be terminated. */
   async terminateOrder(orderNumber) {
     if (mode === 'mock') {
       const m = mockOrders.get(orderNumber);
