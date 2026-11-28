@@ -8,7 +8,6 @@ import { HttpError } from '../utils/httpError.js';
 
 const router = Router();
 
-// Slows down password guessing (PID risk: "Login guessing attacks").
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
