@@ -99,7 +99,6 @@ export const gateway = {
     return data.order_status;
   },
 
-  /** The successful payment on an order, or null. */
   async getSuccessfulPayment(orderNumber) {
     if (mode === 'mock') {
       const m = mockOrders.get(orderNumber);
@@ -138,10 +137,6 @@ export const gateway = {
     return { refundId };
   },
 
-  /**
-   * Cashfree signs webhooks as base64(HMAC-SHA256(timestamp + rawBody, secretKey)).
-   * Must be checked against the raw request body, before JSON parsing.
-   */
   verifyWebhook(rawBody, signature, timestamp, secret = env.cashfree.secretKey) {
     if (!signature || !timestamp || !secret) return false;
     const expected = crypto.createHmac('sha256', secret).update(String(timestamp) + rawBody).digest('base64');
