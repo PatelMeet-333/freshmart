@@ -140,8 +140,6 @@ export async function switchToCod(orderId) {
   );
   return Order.findById(orderId);
 }
-
-/** Releases holds that ran out (checking Cashfree first, in case a webhook is late). */
 export async function sweepExpiredHolds(limit = 50) {
   const expired = await Order.find({ status: 'awaiting_payment', holdExpiresAt: { $lte: new Date() } })
     .select('_id')
