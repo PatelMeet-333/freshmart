@@ -22,7 +22,6 @@ export const env = {
   isProd,
   isTest: NODE_ENV === 'test',
   port,
-  // Empty in development = start an in-memory MongoDB replica set automatically.
   mongoUri: isProd ? required('MONGO_URI') : process.env.MONGO_URI || '',
   jwtSecret: isProd ? required('JWT_SECRET') : process.env.JWT_SECRET || 'dev-only-insecure-secret-change-me',
   clientUrls: (process.env.CLIENT_URL || 'http://localhost:5173')
