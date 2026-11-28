@@ -5,11 +5,6 @@ const TX_OPTIONS = {
   writeConcern: { w: 'majority' },
 };
 
-/**
- * Runs fn(session) inside one ACID transaction. MongoDB may retry fn on a
- * transient error (for example two orders racing for the same product), so
- * fn must compute everything from scratch each time it runs.
- */
 export async function runInTransaction(fn) {
   const session = await mongoose.startSession();
   try {
