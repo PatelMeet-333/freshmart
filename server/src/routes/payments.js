@@ -26,8 +26,6 @@ export async function cashfreeWebhook(req, res) {
   const orderNumber = event?.data?.order?.order_id;
   const payment = event?.data?.payment || {};
   const order = orderNumber ? await Order.findOne({ orderNumber }) : null;
-  // Always 200 for a correctly signed event so Cashfree stops retrying,
-  // even for orders we don't know (for example from another environment).
   if (!order) return res.json({ ok: true, ignored: true });
 
   switch (event.type) {
