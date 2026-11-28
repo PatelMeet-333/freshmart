@@ -8,10 +8,6 @@ import { gateway } from '../services/cashfree.js';
 import { confirmPayment, recordFailedAttempt } from '../services/payments.js';
 import { HttpError } from '../utils/httpError.js';
 
-/**
- * Cashfree webhook. Mounted with express.raw() BEFORE the JSON parser,
- * because the signature is computed over the exact raw bytes.
- */
 export async function cashfreeWebhook(req, res) {
   const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
   const signature = req.get('x-webhook-signature');
@@ -56,7 +52,6 @@ router.get('/config', (_req, res) => {
   res.json({ mode: gateway.mode, deliveryFee: env.deliveryFee, holdMinutes: env.holdMinutes });
 });
 
-// Local development only: stands in for the Cashfree checkout page.
 if (gateway.mode === 'mock') {
   const mockSchema = z.object({ outcome: z.enum(['success', 'failure', 'dropped']) });
   router.post('/mock/:orderId/complete', requireAuth, async (req, res) => {
