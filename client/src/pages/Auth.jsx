@@ -18,8 +18,6 @@ export default function Auth({ mode }) {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const errorRef = useRef(null);
-
-  // Make sure the message is seen, even on short screens.
   useEffect(() => {
     if (error) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [error]);
