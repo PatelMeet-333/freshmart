@@ -1,18 +1,10 @@
 import crypto from 'node:crypto';
 import { env } from '../config/env.js';
-
-/**
- * Thin client for Cashfree Payment Gateway (API version 2023-08-01).
- * In 'mock' mode (local development and tests only) nothing leaves the
- * machine: orders live in memory and the front end shows a mock checkout.
- */
-
 const BASE_URLS = {
   sandbox: 'https://sandbox.cashfree.com/pg',
   production: 'https://api.cashfree.com/pg',
 };
 
-// Limits the Cashfree checkout to the method the customer picked on our page.
 const METHOD_FILTER = { upi: 'upi', card: 'cc,dc', netbanking: 'nb' };
 
 const { mode } = env.cashfree;
@@ -37,7 +29,7 @@ async function call(method, path, body, { idempotencyKey } = {}) {
   if (idempotencyKey) headers['x-idempotency-key'] = idempotencyKey;
   const res = await fetch(BASE_URLS[mode] + path, {
     method,
-    headers,
+    headrs,
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(15_000),
   });
@@ -55,8 +47,6 @@ function isHttps(url) {
 export const gateway = {
   mode,
   name: mode === 'mock' ? 'mock' : 'cashfree',
-
-  /** Creates (or re-fetches) the Cashfree order for one of our orders. */
   async createOrder(order, user) {
     if (mode === 'mock') {
       mockOrders.set(order.orderNumber, { status: 'ACTIVE', amount: order.total, cfPaymentId: null, refunds: [] });
@@ -160,7 +150,6 @@ export const gateway = {
     return a.length === b.length && crypto.timingSafeEqual(a, b);
   },
 
-  /** Mock mode only: the customer finishing or abandoning the mock checkout. */
   mockComplete(orderNumber, outcome) {
     const m = mockOrders.get(orderNumber);
     if (!m) return null;
@@ -173,7 +162,6 @@ export const gateway = {
     return m;
   },
 
-  /** Test helper: forces the mock order into a state. */
   _mockSet(orderNumber, patch) {
     Object.assign(mockOrders.get(orderNumber), patch);
   },
